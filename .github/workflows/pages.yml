@@ -44,3 +44,19 @@ jobs:
       - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Validar endereço público e arquivos por HTTPS
+        run: |
+          for tentativa in {1..12}; do
+            if curl -fsSL --max-time 15 -o /tmp/mestre-index.html https://brgxbrasil.github.io/mestrechalita/ && \
+               curl -fsSL --max-time 15 -o /tmp/mestre-astrohd.js https://brgxbrasil.github.io/mestrechalita/astrohd.js && \
+               curl -fsSL --max-time 15 -o /tmp/mestre-ephemerides.js https://brgxbrasil.github.io/mestrechalita/vendor/astronomy.browser.min.js && \
+               grep -q 'Mestre Chalita Pages v1.0.0' /tmp/mestre-index.html && \
+               grep -q 'MestreAstroHD' /tmp/mestre-astrohd.js && \
+               grep -q 'Astronomy' /tmp/mestre-ephemerides.js; then
+              echo 'GitHub Pages publicado e arquivos verificados por HTTPS'; exit 0
+            fi
+            echo "Site ainda propagando (tentativa $tentativa/12)"
+            sleep 10
+          done
+          echo 'Falha na verificação HTTP da publicação' >&2
+          exit 1
