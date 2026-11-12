@@ -1,24 +1,29 @@
 # Mestre Chalita — MIII
 
-Repositório privado do projeto **Mestre Chalita**, com o MIII como motor interpretativo.
+Aplicativo estático de interpretação simbólica (numerologia pitagórica, Tarot, I Ching e runas), com **leitura consolidada**.
 
-## Acesso ao aplicativo publicado
+## GitHub Pages
 
-**URL atual:** https://miii-mobile-production.up.railway.app/
+- **Endereço previsto, após ativar Pages:** https://brgxbrasil.github.io/mestrechalita/
+- **Código-fonte:** [index.html](./index.html)
+- **Publicação:** GitHub → repositório → Settings → Pages → Build and deployment → Deploy from a branch → main → / (root) → Save.
+- **Atenção:** o GitHub Pages ainda precisa ser ativado e validado. Repositórios privados podem exigir um plano GitHub elegível para Pages. O site publicado no Pages é público mesmo que o repositório seja privado em planos que permitam essa configuração.
 
-**URL curta solicitada:** https://abre.ai/mestrechalita — **ainda não confirmada/registrada**.
+## Endereços anteriores
 
-## Hospedagem e versões
+- Railway (mantida por enquanto, sem exclusão): https://miii-mobile-production.up.railway.app/
+- URL curta solicitada: https://abre.ai/mestrechalita — ainda não registrada nem confirmada.
 
-- Aplicativo móvel atual: Railway Function, Bun/TypeScript, versão 0.8.2.
-- Pacote Python original: MIII v0.8 (artefato anterior, não integrado automaticamente a esta implantação).
-- A hospedagem Railway permanece independente deste repositório.
-- O repositório não deve conter a senha de acesso nem dados de consultas.
+## Funcionalidade e limites
 
-## Estado da transferência
+- A versão Pages é **Mestre Chalita v0.9.0**, adaptada para funcionar sem servidor.
+- Os cálculos e a seleção simbólica SHA-256 ocorrem no navegador; consultas não são enviadas a servidor nem persistidas.
+- Interpretação integrada de numerologia, Tarot, I Ching e runa.
+- A seleção simbólica mantém o algoritmo SHA256-counter-v1-mobile, mas não deve ser confundida com a seleção Python original.
+- Astrologia, Human Design e Sal Deck ainda não estão integrados.
+- O código JavaScript é público para visitantes quando o site estiver publicado. Não incluir senhas ou segredos no repositório.
+- A publicação estática não oferece a autenticação HTTP Basic da versão Railway.
 
-Este repositório foi preparado como destino do projeto. A cópia integral do código da função Railway e do pacote Python **ainda está pendente**; o código publicado não deve ser confundido com o conteúdo deste repositório até uma sincronização e validação completas.
+## Validação
 
-## Segurança
-
-Repositório privado. Não inserir senhas, chaves, dados pessoais de consultas ou segredos em commits.
+O arquivo index.html foi enviado ao branch main. A ativação do GitHub Pages e o teste HTTP externo ainda não foram confirmados.
