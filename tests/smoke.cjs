@@ -16,7 +16,8 @@ const nodes=Object.fromEntries(ids.map(id=>[id,{
   addEventListener(){},scrollIntoView(){},
   querySelector(){return {disabled:false}}
 }]));
-const document={getElementById(id){assert.ok(nodes[id],"Elemento ausente: "+id);return nodes[id]}};
+const tabs=["reading","oracles","numbers","extended"].map(pane=>({dataset:{pane},classList:{toggle(){}},setAttribute(){},addEventListener(type,fn){this.handler=fn},click(){this.handler?.()}}));
+const document={getElementById(id){assert.ok(nodes[id],"Elemento ausente: "+id);return nodes[id]},querySelectorAll(selector){assert.equal(selector,"[data-pane]");return tabs}};
 const context={document,crypto:webcrypto,TextEncoder,Date,console,Math,Intl};
 const vendor=readFileSync(join(__dirname,"..","vendor","astronomy.browser.min.js"),"utf8");
 const astrohd=readFileSync(join(__dirname,"..","astrohd.js"),"utf8");
@@ -70,6 +71,14 @@ const input={
   check(!nodes.result.hidden,"Painel de resultado visível");
   check(nodes.reading.innerHTML.includes("Baralho Lenormand"),"Baralho aparece na leitura consolidada");
   check(nodes.reading.innerHTML.includes("Síntese integrada"),"Leitura contém síntese");
+  tabs[1].click();
+  check(nodes.oracles.hidden===false&&nodes.reading.hidden===true,"Navegação de abas mostra oráculos");
+  tabs[2].click();
+  check(nodes.numbers.hidden===false&&nodes.oracles.hidden===true,"Navegação de abas mostra numerologia");
+  tabs[3].click();
+  check(nodes.extended.hidden===false&&nodes.numbers.hidden===true,"Navegação de abas mostra mapa");
+  tabs[0].click();
+  check(nodes.reading.hidden===false&&nodes.extended.hidden===true,"Navegação retorna à síntese");
   check(nodes.extended.innerHTML.includes("Posições planetárias"),"Planetas exibidos no painel de astrologia");
   check(nodes.extended.innerHTML.includes("26 ativações"),"BodyGraph exibido com suas ativações");
   const unknownPlace=await app.consult({...input,birth_place:"Cidade fictícia, Brasil",latitude:"",longitude:""});
