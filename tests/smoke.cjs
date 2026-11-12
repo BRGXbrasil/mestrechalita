@@ -18,7 +18,9 @@ const nodes=Object.fromEntries(ids.map(id=>[id,{
 }]));
 const document={getElementById(id){assert.ok(nodes[id],"Elemento ausente: "+id);return nodes[id]}};
 const context={document,crypto:webcrypto,TextEncoder,Date,console,Math,Intl};
-runInNewContext(js[1]+"\n;globalThis.__app={consult,render,solarLongitude,normDeg,findDesignDate,gateFromLongitude,astroHD};",context,{timeout:3000});
+const vendor=readFileSync(join(__dirname,"..","vendor","astronomy.browser.min.js"),"utf8");
+const astrohd=readFileSync(join(__dirname,"..","astrohd.js"),"utf8");
+runInNewContext(vendor+"\n"+astrohd+"\n"+js[1]+"\n;globalThis.__app={consult,render,astroHD};",context,{timeout:7000});
 const app=context.__app;
 const input={
   name:"Maria da Silva",birth_date:"1990-04-20",
@@ -39,20 +41,43 @@ const input={
   check(r.oracles.iching.changing_line>=1&&r.oracles.iching.changing_line<=6,"I Ching: linha válida");
   check(!!r.oracles.rune.name,"Runa presente");
   check(r.numerology.life_path>0,"Caminho de vida calculado");
+
+  check(r.integrations.astrology.status==="computed","Mapa astral calculado");
   check(r.integrations.astrology.sun_sign==="Touro","Sol tropical: 20/04/1990");
+  check(r.integrations.astrology.planets.length===10,"Dez posições astronômicas geocêntricas");
+  check(r.integrations.astrology.aspects.length>0,"Aspectos principais calculados");
+  check(r.integrations.astrology.ascendant!==null,"Ascendente calculado para São Paulo");
+  check(r.integrations.astrology.houses.length===12,"Doze casas iguais calculadas");
+  check(r.integrations.human_design.status==="computed","BodyGraph calculado");
+  check(Object.keys(r.integrations.human_design.personality_activations).length===13,"Treze ativações de personalidade");
+  check(Object.keys(r.integrations.human_design.design_activations).length===13,"Treze ativações de design");
   check(r.integrations.human_design.personality_sun.gate>=1,"Porta solar de personalidade");
   check(r.integrations.human_design.design_sun.line>=1&&r.integrations.human_design.design_sun.line<=6,"Linha solar de design");
+  check(!!r.integrations.human_design.profile,"Perfil de Human Design calculado");
+  check(!!r.integrations.human_design.type,"Tipo de Human Design calculado");
+  check(!!r.integrations.human_design.authority,"Autoridade de Human Design calculada");
+  check(MestreAstroHDCheck(),"Mandala: 64 portas únicas, 36 canais, 64 centros de porta");
+  function MestreAstroHDCheck(){
+    const a=context.MestreAstroHD;
+    return a.gateOrder.length===64&&new Set(a.gateOrder).size===64&&a.channelPairs.length===36&&Object.keys(a.centerByGate).length===64;
+  }
   const a=new Date(r.integrations.astrology.utc_birth),b=new Date(r.integrations.human_design.design_utc);
-  const solarDifference=app.normDeg(app.solarLongitude(a)-app.solarLongitude(b));
-  check(Math.abs(solarDifference-88)<0.0001,"Design solar ~88° antes");
+  const solarDifference=((context.Astronomy.SunPosition(a).elon-context.Astronomy.SunPosition(b).elon)%360+360)%360;
+  check(Math.abs(solarDifference-88)<0.001,"Design solar calculado precisamente a 88°");
   check(b<a,"Design solar anterior ao nascimento");
   check(JSON.stringify(r.oracles)===JSON.stringify((await app.consult(input)).oracles),"Mesmo seed reproduz mesma tiragem");
   app.render(r);
   check(!nodes.result.hidden,"Painel de resultado visível");
   check(nodes.reading.innerHTML.includes("Baralho Lenormand"),"Baralho aparece na leitura consolidada");
   check(nodes.reading.innerHTML.includes("Síntese integrada"),"Leitura contém síntese");
-  check(nodes.extended.innerHTML.includes("Sol tropical"),"Painel de astrologia calculado");
-  check(nodes.extended.innerHTML.includes("Ativação solar"),"Painel de Human Design calculado");
+  check(nodes.extended.innerHTML.includes("Posições planetárias"),"Planetas exibidos no painel de astrologia");
+  check(nodes.extended.innerHTML.includes("26 ativações"),"BodyGraph exibido com suas ativações");
+  const unknownPlace=await app.consult({...input,birth_place:"Cidade fictícia, Brasil",latitude:"",longitude:""});
+  check(unknownPlace.integrations.astrology.ascendant===null,"Local desconhecido não inventa ascendente");
+  const manual=await app.consult({...input,birth_place:"Cidade fictícia",latitude:"-23.5505",longitude:"-46.6333"});
+  check(!!manual.integrations.astrology.ascendant,"Coordenadas manuais permitem ascendente");
+  await assert.rejects(()=>app.consult({...input,latitude:"-23",longitude:"200"}));
+  count++;console.log("OK "+count+" Longitude inválida rejeitada");
   const noHour=await app.consult({...input,birth_time:"",utc_offset:""});
   check(noHour.integrations.astrology.status==="missing_birth_details","Consulta sem hora continua possível");
   for (const data of [
@@ -70,5 +95,10 @@ const input={
   app.render(xss);
   check(!nodes.reading.innerHTML.includes("<img"),"Pergunta HTML é escapada");
   check(!html.includes("MIII_PASSWORD"),"Nenhuma variável de senha no código público");
+  for(let i=0;i<12;i++){
+    const year=1950+i*6,month=String((i%12)+1).padStart(2,"0");
+    const sample=await app.consult({...input,birth_date:year+"-"+month+"-15",oracle_seed:"stress-"+i});
+    check(sample.oracles.tarot.length===3&&sample.integrations.human_design.design_activations["Sol"].gate>=1,"Estresse: ano "+year);
+  }
   console.log("TODOS OS "+count+" TESTES PASSARAM");
 })().catch(err=>{console.error(err);process.exitCode=1});
