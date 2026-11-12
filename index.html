@@ -12,7 +12,7 @@
 <label for="seed">Semente reproduzível</label><input id="seed" maxlength="256" required>
 <button type="submit">Gerar consulta e leitura</button><p id="status" role="status" class="muted"></p></form></section>
 <section id="result" hidden><h2>Resultado</h2><div id="numbers" class="grid"></div><h2>Oráculos</h2><div id="oracles"></div><h2>Astrologia, Human Design e Baralho</h2><div id="extended"></div><h2>Leitura consolidada</h2><div id="reading"></div><details><summary>Dados técnicos e proveniência</summary><pre id="json"></pre></details></section>
-<footer>Interpretação simbólica, não diagnóstico nem previsão comprovada. Astrologia, Human Design e Sal Deck: entradas e estados de integração preparados; cálculos ainda não implementados. As cartas e os símbolos são sorteados por um algoritmo identificado, sem pretensão de reproduzir o método físico tradicional. Nenhum dado da consulta é persistido.</footer></main>
+<footer>Interpretação simbólica, não diagnóstico nem previsão comprovada. Astrologia e Human Design ainda requerem cálculos astronômicos verificados. Baralho Lenormand integrado. As cartas e os símbolos são sorteados por um algoritmo identificado, sem pretensão de reproduzir o método físico tradicional. Nenhum dado da consulta é persistido.</footer></main>
 <script>
 "use strict";
 const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
